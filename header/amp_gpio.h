@@ -7,9 +7,11 @@
 #define GPIO_LED_PIN				21
 #define GPIO_LCD_BKLGHT				04
 
-#define SERVER_MOTOR_channel		0
+#define PWM_res_bit_num				16
 
-#define SERVER_MOTOR_freq			50
+#define SERVO_MOTOR_channel			0
+
+#define SERVO_MOTOR_freq			50
 
 #define LED_channel					2
 #define LED_freq					1000
@@ -55,11 +57,11 @@ void amp_gpio_init(void)
 	pinMode(GPIO_LED_PIN, OUTPUT);
 	digitalWrite(GPIO_LED_PIN, 0);
 
-	ledcSetup(SERVER_MOTOR_channel, SERVER_MOTOR_freq, 10);
-	ledcAttachPin(GPIO_SERVO_MOTOR_PIN, SERVER_MOTOR_channel);
-	ledcWrite(SERVER_MOTOR_channel, 511);
+	ledcSetup(SERVO_MOTOR_channel, SERVO_MOTOR_freq, PWM_res_bit_num);
+	ledcAttachPin(GPIO_SERVO_MOTOR_PIN, SERVO_MOTOR_channel);
+	ledcWrite(SERVO_MOTOR_channel, 0);
 
-	ledcSetup(LED_channel, LED_freq, 10);
+	ledcSetup(LED_channel, LED_freq, PWM_res_bit_num);
 	ledcAttachPin(GPIO_LED_PIN, LED_channel);
 	ledcWrite(LED_channel, 0);
 
@@ -69,9 +71,19 @@ void amp_gpio_init(void)
 	Button_struct_init(&But_B, GPIO_BUTT_B_PIN);
 }
 
-void amp_gpio_set_pwm(uint8_t duty, uint8_t channel)
-{
-	ledcWrite(channel, duty * 1023 / 100);
+void amp_gpio_set_pwm(float duty, uint8_t channel)
+{	
+	if (duty > 100 || duty < 0)
+		duty = 0;
+
+	uint32_t res_max = (1 << PWM_res_bit_num) - 1;
+	
+	Serial.print("Duty:");
+	Serial.print(duty);
+	Serial.print("PWM:");
+	Serial.println((uint32_t)(duty * res_max / 100));
+	
+	ledcWrite(channel, (uint32_t)(duty * res_max / 100));
 }
 
 void button_scan(_Button *pButton)
@@ -129,6 +141,16 @@ bool Get_But_press(_Button *pButton)
 		pButton->flag = 0;
 	}
 	return 0;
+}
+
+void amp_servo_set(float ang)
+{
+	if (ang > 180 || ang < 0)
+		return;
+
+	float duty = 10 * ang / 180 + 2.5;
+
+	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
 }
 
 #endif // __AMP_GPIO_H__

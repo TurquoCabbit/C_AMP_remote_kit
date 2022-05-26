@@ -1,3 +1,6 @@
+#ifndef __AMP_RTOS_H__
+#define __AMP_RTOS_H__
+
 #define core_0 0
 #define core_1 1
 
@@ -42,8 +45,12 @@ enum _main_mode
 
 enum _servo_mode
 {
+	servo_mode_boost		= 0xFF,
 	servo_mode_general		= 0x00,
 	servo_mode_amp_on,
 	servo_mode_amp_off,
 	servo_mode_amp_toggle,
 };
+
+
+#endif // __AMP_RTOS_H__

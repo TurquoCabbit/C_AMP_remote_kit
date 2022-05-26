@@ -1,3 +1,4 @@
+
 #include "header/amp_gpio.h"
 #include "header/amp_RTOS.h"
 
@@ -27,6 +28,9 @@ void setup() {
 		servo_task_priority,  /* Priority of the task */
 		&servo_task_handle,  /* Task handle. */
 		core_1);
+
+	
+	main_mode(main_mode_boost);	
 }
 
 void loop() {
@@ -37,6 +41,8 @@ void loop() {
 void main_task(void * parameter)
 {
 	uint8_t mode = 0xFF;
+	
+	TickType_t tick = xTaskGetTickCount();
 
 	for (;;)
 	{
@@ -45,7 +51,7 @@ void main_task(void * parameter)
 			switch (mode)
 			{
 				case main_mode_boost:
-					servo_mode(servo_mode_general);	
+					servo_mode(servo_mode_boost);
 					main_mode(main_mode_general);				
 					break;
 
@@ -54,13 +60,17 @@ void main_task(void * parameter)
 					button_scan(&But_B);
 
 					if (Get_But(&But_A)) {
+						Serial.print("Butt_A\n");
 						servo_mode(servo_mode_amp_on);	
 					}
 
 					if (Get_But(&But_B)) {
+						Serial.print("Butt_B\n");
 						servo_mode(servo_mode_amp_off);	
-					}
-					
+					}	
+
+					vTaskDelayUntil(&tick, 1 / portTICK_PERIOD_MS);
+					main_mode(main_mode_general);				
 					break;
 			}
 		}
@@ -77,7 +87,24 @@ void servo_task(void * parameter)
 		{
 			switch (mode)
 			{
+				case servo_mode_boost:
+					break;
 				case servo_mode_general:
+					break;
+
+				case servo_mode_amp_on:
+					Serial.print("servo_mode_amp_on\n");
+					amp_servo_set(180);
+					servo_mode(servo_mode_general);	
+					break;
+
+				case servo_mode_amp_off:
+					Serial.print("servo_mode_amp_off\n");
+					amp_servo_set(0);
+					servo_mode(servo_mode_general);	
+					break;
+
+				case servo_mode_amp_toggle:
 					break;
 			}
 		}
