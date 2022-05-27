@@ -94,13 +94,13 @@ void servo_task(void * parameter)
 
 				case servo_mode_amp_on:
 					Serial.print("servo_mode_amp_on\n");
-					amp_servo_set(180);
+					amp_servo_set_angle(180);
 					servo_mode(servo_mode_general);	
 					break;
 
 				case servo_mode_amp_off:
 					Serial.print("servo_mode_amp_off\n");
-					amp_servo_set(0);
+					amp_servo_set_angle(0);
 					servo_mode(servo_mode_general);	
 					break;
 

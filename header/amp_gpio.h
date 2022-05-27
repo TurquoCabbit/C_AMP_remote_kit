@@ -143,14 +143,29 @@ bool Get_But_press(_Button *pButton)
 	return 0;
 }
 
-void amp_servo_set(float ang)
+#define SREVO_scale		7.5	// %
+void amp_servo_set_angle(float ang)
 {
 	if (ang > 180 || ang < 0)
 		return;
-
-	float duty = 10 * ang / 180 + 2.5;
+	float duty = SREVO_scale * ang / 180 + 2.5;
 
 	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
 }
+
+void amp_servo_360_set(float diversion)
+{
+	float duty;
+
+	if (diversion > 0)
+		duty = SREVO_scale + 2.5;
+	else if (diversion < 0)
+		duty = 2.5;
+	else
+		duty = SREVO_scale * 0.5 + 2.5;
+
+	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
+}
+
 
 #endif // __AMP_GPIO_H__
