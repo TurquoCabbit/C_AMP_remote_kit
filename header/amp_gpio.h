@@ -143,7 +143,7 @@ bool Get_But_press(_Button *pButton)
 	return 0;
 }
 
-#define SREVO_scale		7.5	// %	(20  ms)
+#define SREVO_scale		10	// %	(20  ms)
 #define SERVO_offset	2.5 // %	(0.5 ms)
 
 void amp_servo_set_angle(float ang)
