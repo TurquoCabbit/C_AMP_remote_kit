@@ -143,12 +143,14 @@ bool Get_But_press(_Button *pButton)
 	return 0;
 }
 
-#define SREVO_scale		7.5	// %
+#define SREVO_scale		7.5	// %	(20  ms)
+#define SERVO_offset	2.5 // %	(0.5 ms)
+
 void amp_servo_set_angle(float ang)
 {
 	if (ang > 180 || ang < 0)
 		return;
-	float duty = SREVO_scale * ang / 180 + 2.5;
+	float duty = SREVO_scale * ang / 180 + SERVO_offset;
 
 	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
 }
@@ -158,11 +160,11 @@ void amp_servo_360_set(float diversion)
 	float duty;
 
 	if (diversion > 0)
-		duty = SREVO_scale + 2.5;
+		duty = SREVO_scale + SERVO_offset;
 	else if (diversion < 0)
-		duty = 2.5;
+		duty = SERVO_offset;
 	else
-		duty = SREVO_scale * 0.5 + 2.5;
+		duty = SREVO_scale * 0.5 + SERVO_offset;
 
 	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
 }
