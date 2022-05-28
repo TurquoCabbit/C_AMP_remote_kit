@@ -21,15 +21,28 @@ enum _smsl_IR_butt
     smsl_IR_butt_MUTE,
 };
 
+
+typedef struct
+{
+    uint8_t PWR;
+    uint8_t MUTE;
+    uint8_t ENTER;
+    uint8_t UP;
+    uint8_t DOWN;
+    uint8_t LEFT;
+    uint8_t RIGHT;
+    uint8_t SRC;
+    uint8_t FN;
+} _smsl_butt_cnt;
+
+
 void smsl_remote_print(IRData * data)
 {
     uint8_t mode;
-    char str[40] = {0};
 
     switch (data->address) {
         default:
-            sprintf(str, "ERROR: addr: %d, cmd: %x", data->address, data->command);
-            Serial.println(str);
+            amp_printf("ERROR: addr: %d, cmd: %x\n", data->address, data->command);
             return;
             break;
         case smsl_IR_addr_A:
@@ -46,43 +59,40 @@ void smsl_remote_print(IRData * data)
     switch (data->command)
     {
         default:
-            sprintf(str, "ERROR: mode: %c, cmd: %x", mode, data->command);
-            Serial.println(str);
+            amp_printf("ERROR: mode: %c, cmd: %x\n", mode, data->command);
             return;
             break;
         case smsl_IR_butt_PWR:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "POWER");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "POWER");
             break;
         case smsl_IR_butt_MUTE:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "MUTE");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "MUTE");
             break;
         case smsl_IR_butt_ENTER:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "ENTER");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "ENTER");
             break;
         case smsl_IR_butt_UP:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "UP");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "UP");
             break;
         case smsl_IR_butt_DOWN:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "DOWN");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "DOWN");
             break;
         case smsl_IR_butt_LEFT:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "LEFT");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "LEFT");
             break;
         case smsl_IR_butt_RIGHT:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "RIGHT");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "RIGHT");
             break;
         case smsl_IR_butt_SRC:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "SRC");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "SRC");
             break;
         case smsl_IR_butt_FN:
-            sprintf(str, "SMSL REMOTE: mode: %c, butt: %s", mode, "FN");
+            amp_printf("SMSL REMOTE: mode: %c, butt: %s\n", mode, "FN");
             break;
     }
-
-    Serial.println(str);
 }
 
-inline uint8_t smsl_remote_check(IRData * data, _smsl_IR_addr mode, _smsl_IR_butt butt)
+inline uint8_t smsl_remote_check(IRData * data, uint8_t * status, _smsl_IR_addr mode, _smsl_IR_butt butt)
 {
-    return (data->address == mode) && (data->command == butt);
+    return ((*status)--) && (data->address == mode) && (data->command == butt);
 }

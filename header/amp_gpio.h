@@ -70,10 +70,7 @@ void amp_gpio_set_pwm(float duty, uint8_t channel)
 
 	uint32_t res_max = (1 << PWM_res_bit_num) - 1;
 	
-	Serial.print("Duty:");
-	Serial.print(duty);
-	Serial.print("PWM:");
-	Serial.println((uint32_t)(duty * res_max / 100));
+	amp_printf("Duty: %.2f, PWM: %d\n", duty, (uint32_t)(duty * res_max / 100));
 	
 	ledcWrite(channel, (uint32_t)(duty * res_max / 100));
 }
