@@ -4,7 +4,7 @@
 //Pin define
 #define GPIO_SERVO_MOTOR_PIN		02
 #define GPIO_GEAR_MOTOR_PIN			15
-#define GPIO_LED_PIN				21
+#define GPIO_IR_RX_PIN				13
 #define GPIO_LCD_BKLGHT				04
 
 #define PWM_res_bit_num				16
@@ -12,9 +12,6 @@
 #define SERVO_MOTOR_channel			0
 
 #define SERVO_MOTOR_freq			50
-
-#define LED_channel					2
-#define LED_freq					1000
 
 #define GPIO_BUTT_A_PIN				00
 #define GPIO_BUTT_B_PIN				35
@@ -54,16 +51,11 @@ void amp_gpio_init(void)
 	pinMode(GPIO_GEAR_MOTOR_PIN, OUTPUT);
 	digitalWrite(GPIO_GEAR_MOTOR_PIN, 0);
 
-	pinMode(GPIO_LED_PIN, OUTPUT);
-	digitalWrite(GPIO_LED_PIN, 0);
+	pinMode(GPIO_IR_RX_PIN, INPUT);
 
 	ledcSetup(SERVO_MOTOR_channel, SERVO_MOTOR_freq, PWM_res_bit_num);
 	ledcAttachPin(GPIO_SERVO_MOTOR_PIN, SERVO_MOTOR_channel);
 	ledcWrite(SERVO_MOTOR_channel, 0);
-
-	ledcSetup(LED_channel, LED_freq, PWM_res_bit_num);
-	ledcAttachPin(GPIO_LED_PIN, LED_channel);
-	ledcWrite(LED_channel, 0);
 
 	pinMode(GPIO_BUTT_A_PIN, INPUT_PULLUP);
 	pinMode(GPIO_BUTT_B_PIN, INPUT_PULLUP);

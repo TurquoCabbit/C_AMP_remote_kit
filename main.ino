@@ -1,6 +1,8 @@
 
+#include <IRremote.h>
 #include "header/amp_gpio.h"
 #include "header/amp_RTOS.h"
+#include "header/smsl_IR_tbl.h"
 
 void setup() {
 	
@@ -29,7 +31,6 @@ void setup() {
 		&servo_task_handle,  /* Task handle. */
 		core_1);
 
-	
 	main_mode(main_mode_boost);	
 }
 
@@ -41,7 +42,8 @@ void loop() {
 void main_task(void * parameter)
 {
 	uint8_t mode = 0xFF;
-	
+	IRData *smsl_ir;
+
 	TickType_t tick = xTaskGetTickCount();
 
 	for (;;)
@@ -51,6 +53,8 @@ void main_task(void * parameter)
 			switch (mode)
 			{
 				case main_mode_boost:
+					IrReceiver.begin(GPIO_IR_RX_PIN, DISABLE_LED_FEEDBACK, USE_DEFAULT_FEEDBACK_LED_PIN);
+
 					servo_mode(servo_mode_boost);
 					main_mode(main_mode_general);				
 					break;
@@ -67,7 +71,18 @@ void main_task(void * parameter)
 					if (Get_But(&But_B)) {
 						Serial.print("Butt_B\n");
 						servo_mode(servo_mode_amp_off);	
-					}	
+					}
+
+					if (IrReceiver.decode()) {
+						smsl_ir = &IrReceiver.decodedIRData;
+						
+						if (smsl_remote_check(smsl_ir, smsl_IR_addr_C, smsl_IR_butt_PWR)) {
+
+						}
+
+
+						IrReceiver.resume(); // Enable receiving of the next value
+					}
 
 					vTaskDelayUntil(&tick, 1 / portTICK_PERIOD_MS);
 					main_mode(main_mode_general);				
