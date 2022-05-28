@@ -1,6 +1,9 @@
 #ifndef __AMP_GPIO_H__
 #define __AMP_GPIO_H__
 
+#define SERVO_OK		0
+#define SERVO_ERROR		1
+
 //Pin define
 #define GPIO_SERVO_MOTOR_PIN		02
 #define GPIO_GEAR_MOTOR_PIN			15
@@ -45,9 +48,6 @@ void amp_gpio_init(void)
 	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
 	digitalWrite(GPIO_LCD_BKLGHT, 0); // Turn off LCD back light
 
-	pinMode(GPIO_SERVO_MOTOR_PIN, OUTPUT);
-	digitalWrite(GPIO_SERVO_MOTOR_PIN, 0);
-
 	pinMode(GPIO_GEAR_MOTOR_PIN, OUTPUT);
 	digitalWrite(GPIO_GEAR_MOTOR_PIN, 0);
 
@@ -63,16 +63,23 @@ void amp_gpio_init(void)
 	Button_struct_init(&But_B, GPIO_BUTT_B_PIN);
 }
 
-void amp_gpio_set_pwm(float duty, uint8_t channel)
+uint8_t amp_gpio_set_pwm(float duty, uint8_t channel)
 {	
+	uint32_t res_max = (1 << PWM_res_bit_num) - 1;
+	uint32_t duty_raw;
+	char str[32];
+	
 	if (duty > 100 || duty < 0)
 		duty = 0;
 
-	uint32_t res_max = (1 << PWM_res_bit_num) - 1;
+	duty_raw = (uint32_t)(duty * res_max / 100);
+	sprintf(str, "Duty: %.2f, PWM: %d\n", duty, duty_raw);
+	Serial.print(str);
 	
-	amp_printf("Duty: %.2f, PWM: %d\n", duty, (uint32_t)(duty * res_max / 100));
-	
-	ledcWrite(channel, (uint32_t)(duty * res_max / 100));
+	if (ledcRead(channel) != duty_raw)
+		ledcWrite(channel, duty_raw);
+
+	return SERVO_OK;
 }
 
 void button_scan(_Button *pButton)
@@ -135,28 +142,27 @@ bool Get_But_press(_Button *pButton)
 #define SREVO_scale		10	// %	(20  ms)
 #define SERVO_offset	2.5 // %	(0.5 ms)
 
-void amp_servo_set_angle(float ang)
-{
-	if (ang > 180 || ang < 0)
-		return;
-	float duty = SREVO_scale * ang / 180 + SERVO_offset;
-
-	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
-}
-
-void amp_servo_360_set(float diversion)
+uint8_t amp_servo_set_angle(float ang)
 {
 	float duty;
 
-	if (diversion > 0)
-		duty = SREVO_scale + SERVO_offset;
-	else if (diversion < 0)
-		duty = SERVO_offset;
-	else
-		duty = SREVO_scale * 0.5 + SERVO_offset;
+	if (ang > 180 || ang < 0)
+		return SERVO_ERROR;
 
-	amp_gpio_set_pwm(duty, SERVO_MOTOR_channel);
+	duty = SREVO_scale * ang / 180 + SERVO_offset;
+
+	if (amp_gpio_set_pwm(duty, SERVO_MOTOR_channel) == SERVO_OK)
+		return SERVO_OK;
+	else
+		return SERVO_ERROR;
 }
 
+uint8_t amp_servo_stop(void)
+{	
+	if (amp_gpio_set_pwm(0, SERVO_MOTOR_channel) == SERVO_OK)
+		return SERVO_OK;
+	else
+		return SERVO_ERROR;
+}
 
 #endif // __AMP_GPIO_H__

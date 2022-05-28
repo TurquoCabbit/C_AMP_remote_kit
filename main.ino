@@ -64,19 +64,19 @@ void main_task(void * parameter)
 					IrReceiver.begin(GPIO_IR_RX_PIN, DISABLE_LED_FEEDBACK, USE_DEFAULT_FEEDBACK_LED_PIN);
 
 					servo_mode(servo_mode_boost);
-					main_mode(main_mode_general);				
+					main_mode(main_mode_general);
 					break;
 
 				case main_mode_general:
 					button_scan(&But_A);
 					button_scan(&But_B);
 
-					if (Get_But(&But_A)) {
+					if (Get_But(&But_A, 10)) {
 						amp_printf("Butt_A\n");
 						servo_mode(servo_mode_amp_on);	
 					}
 
-					if (Get_But(&But_B)) {
+					if (Get_But(&But_B, 10)) {
 						amp_printf("Butt_B\n");
 						servo_mode(servo_mode_amp_off);	
 					}
@@ -85,13 +85,14 @@ void main_task(void * parameter)
 						smsl_ir = &IrReceiver.decodedIRData;
 						
 						if (smsl_remote_check(smsl_ir, &smsl_butt.PWR, smsl_IR_addr_C, smsl_IR_butt_PWR)) {
-							smsl_butt.PWR = 0;
-							amp_printf("mode C, PWR : amp power on\n");
+							smsl_butt.PWR = 1;
+							amp_printf("mode C, PWR : amp power switch\n");
+							servo_mode(servo_mode_amp_toggle);
 
 						}
 
 						if (smsl_remote_check(smsl_ir, &smsl_butt.MUTE, smsl_IR_addr_B, smsl_IR_butt_MUTE)) {
-							smsl_butt.MUTE = 0;
+							smsl_butt.MUTE = 1;
 							amp_printf("mode B, MUTE : reset to default\n");
 
 							amp_clear_config();
@@ -99,7 +100,7 @@ void main_task(void * parameter)
 						}
 
 						if (smsl_remote_check(smsl_ir, &smsl_butt.ENTER, smsl_IR_addr_B, smsl_IR_butt_ENTER)) {
-							smsl_butt.ENTER = 0;
+							smsl_butt.ENTER = 1;
 							amp_printf("mode B, ENTER : SAVE config\n");
 
 							amp_save_config(&amp_cfg);
@@ -120,6 +121,9 @@ void main_task(void * parameter)
 void servo_task(void * parameter)
 {
 	uint8_t mode = 0xFF;
+	uint8_t amp_switch_now = 0;
+
+	TickType_t tick = xTaskGetTickCount();
 
 	for (;;)
 	{
@@ -128,23 +132,32 @@ void servo_task(void * parameter)
 			switch (mode)
 			{
 				case servo_mode_boost:
+					vTaskDelayUntil(&tick, 100 / portTICK_PERIOD_MS);
+					servo_mode(servo_mode_amp_off);
 					break;
 				case servo_mode_general:
 					break;
 
 				case servo_mode_amp_on:
-					amp_printf("servo_mode_amp_on: %.2f\n", amp_cfg.servo_on_ang);
-					amp_servo_set_angle(amp_cfg.servo_on_ang);
-					servo_mode(servo_mode_general);	
+					amp_printf("amp_switch_on: angle: %.2f\n", amp_cfg.servo_on_ang);
+
+					if (amp_servo_set_angle(amp_cfg.servo_on_ang) == SERVO_OK)
+						amp_switch_now = 1;
+
+					servo_mode(servo_mode_general);
 					break;
 
 				case servo_mode_amp_off:
-					amp_printf("servo_mode_amp_off: %.2f\n", amp_cfg.servo_off_ang);
-					amp_servo_set_angle(amp_cfg.servo_off_ang);
-					servo_mode(servo_mode_general);	
+					amp_printf("amp_switch_off: angle: %.2f\n", amp_cfg.servo_off_ang);
+
+					if (amp_servo_set_angle(amp_cfg.servo_off_ang) == SERVO_OK)
+						amp_switch_now = 0;
+
+					servo_mode(servo_mode_general);
 					break;
 
 				case servo_mode_amp_toggle:
+					servo_mode(amp_switch_now ? servo_mode_amp_off : servo_mode_amp_on);
 					break;
 			}
 		}

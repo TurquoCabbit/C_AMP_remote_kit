@@ -92,7 +92,16 @@ void smsl_remote_print(IRData * data)
     }
 }
 
-inline uint8_t smsl_remote_check(IRData * data, uint8_t * status, _smsl_IR_addr mode, _smsl_IR_butt butt)
+inline uint8_t smsl_remote_check(IRData * data, uint8_t * cnt, _smsl_IR_addr mode, _smsl_IR_butt butt)
 {
-    return ((*status)--) && (data->address == mode) && (data->command == butt);
+    if ((data->address == mode) && (data->command == butt))
+    {
+        if (*cnt)
+        {
+            (*cnt)--;
+            return 0;
+        }
+
+        return 1;
+    }
 }

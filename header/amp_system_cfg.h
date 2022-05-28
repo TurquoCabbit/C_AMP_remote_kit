@@ -13,21 +13,18 @@
 //SERVO
 #define SERVO_on_ang_init				0
 #define SERVO_off_ang_init				180
-#define SERVO_switch_timw_init			2000
 
 typedef struct _system_config
 {
 	// power switch config
 	float servo_off_ang;
 	float servo_on_ang;
-	uint16_t servo_switch_time_ms;
 };
 
 static _system_config amp_cfg =
 {
 	.servo_off_ang			= SERVO_off_ang_init,
-	.servo_on_ang			= SERVO_on_ang_init,
-	.servo_switch_time_ms	= SERVO_switch_timw_init
+	.servo_on_ang			= SERVO_on_ang_init
 };
 
 inline void amp_save_config(_system_config * pdata)
@@ -70,7 +67,6 @@ inline void amp_system_cfg_init()
 	amp_printf("amp_cfg {\n");
 	amp_printf("servo_off_ang: %.2f\n", amp_cfg.servo_off_ang);
 	amp_printf("servo_on_ang: %.2f\n", amp_cfg.servo_on_ang);
-	amp_printf("servo_switch_time_ms: %d\n", amp_cfg.servo_switch_time_ms);
 	amp_printf("}\n");
 	#endif
 }

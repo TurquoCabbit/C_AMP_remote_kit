@@ -23,8 +23,8 @@ QueueHandle_t queue_servo;
 #define queue_mode_num 256
 uint8_t queue_mode[queue_mode_num];  //mode 0 to 255
 
-#define main_mode(mode)		xQueueSend(queue_main, queue_mode + mode, 0)
-#define servo_mode(mode)	xQueueSend(queue_servo, queue_mode + mode, 0)
+#define main_mode(mode)		xQueueSend(queue_main, queue_mode + (mode), 0)
+#define servo_mode(mode)	xQueueSend(queue_servo, queue_mode + (mode), 0)
 
 inline void queue_init(void)
 {
