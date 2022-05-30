@@ -14,6 +14,9 @@
 #define SERVO_on_ang_init				0
 #define SERVO_off_ang_init				180
 
+//IR 
+#define IR_debounce_cnt_init			1
+
 typedef struct _system_config
 {
 	// power switch config

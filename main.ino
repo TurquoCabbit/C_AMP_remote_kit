@@ -58,8 +58,8 @@ void main_task(void * parameter)
 {
 	uint8_t mode = 0xFF;
 	IRData *smsl_ir;
-	
-	_smsl_butt_cnt smsl_butt = {1};
+
+	_smsl_butt_cnt smsl_butt = {IR_debounce_cnt_init};
 
 	TickType_t tick = xTaskGetTickCount();
 
@@ -96,25 +96,18 @@ void main_task(void * parameter)
 						smsl_ir = &IrReceiver.decodedIRData;
 						
 						if (smsl_remote_check(smsl_ir, &smsl_butt.PWR, smsl_IR_addr_C, smsl_IR_butt_PWR)) {
-							smsl_butt.PWR = 1;
-							amp_printf("mode C, PWR : amp power switch\n");
-							servo_mode(servo_mode_amp_toggle);
-
+							smsl_butt.PWR = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_amp_switch);
 						}
 
 						if (smsl_remote_check(smsl_ir, &smsl_butt.MUTE, smsl_IR_addr_B, smsl_IR_butt_MUTE)) {
-							smsl_butt.MUTE = 1;
-							amp_printf("mode B, MUTE : reset to default\n");
-
-							amp_clear_config();
-							ESP.restart();
+							smsl_butt.MUTE = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_reset_cfg);
 						}
 
 						if (smsl_remote_check(smsl_ir, &smsl_butt.ENTER, smsl_IR_addr_B, smsl_IR_butt_ENTER)) {
-							smsl_butt.ENTER = 1;
-							amp_printf("mode B, ENTER : SAVE config\n");
-
-							amp_save_config(&amp_cfg);
+							smsl_butt.ENTER = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_save_cfg);
 						}
 
 
@@ -123,6 +116,76 @@ void main_task(void * parameter)
 
 					vTaskDelayUntil(&tick, 1 / portTICK_PERIOD_MS);
 					main_mode(main_mode_general);				
+					break;
+			}
+		}
+	}
+}
+
+void UIUX_task(void * parameter)
+{
+	
+	uint8_t mode = 0xFF;
+
+	TickType_t tick = xTaskGetTickCount();
+
+	for (;;)
+	{
+		if (xQueueReceive(queue_UIUX, &mode, portMAX_DELAY) == pdTRUE)
+		{
+			switch (mode)
+			{
+				case UIUX_mode_boost:
+					vTaskDelayUntil(&tick, 100 / portTICK_PERIOD_MS);
+					UIUX_mode(UIUX_mode_general);
+					break;
+					
+				case UIUX_mode_general:
+					break;
+
+				case UIUX_mode_amp_switch:
+					amp_printf("mode C, PWR : amp power switch\n");
+					
+					servo_mode(servo_mode_amp_toggle);
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_volume_up:
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_volume_down:
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_save_cfg:
+					amp_printf("mode B, ENTER : SAVE config\n");
+
+					amp_save_config(&amp_cfg);
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_reset_cfg:
+					amp_printf("mode B, MUTE : reset to default\n");
+
+					amp_clear_config();
+					ESP.restart();
+					break;
+				
+				case UIUX_mode_servo_on_angle:
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_sub_servo_on_angle:
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_servo_off_angle:
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_sub_servo_off_angle:
+					UIUX_mode(UIUX_mode_general);
 					break;
 			}
 		}
@@ -169,30 +232,6 @@ void servo_task(void * parameter)
 
 				case servo_mode_amp_toggle:
 					servo_mode(amp_switch_now ? servo_mode_amp_off : servo_mode_amp_on);
-					break;
-			}
-		}
-	}
-}
-
-void UIUX_task(void * parameter)
-{
-	
-	uint8_t mode = 0xFF;
-
-	TickType_t tick = xTaskGetTickCount();
-
-	for (;;)
-	{
-		if (xQueueReceive(queue_UIUX, &mode, portMAX_DELAY) == pdTRUE)
-		{
-			switch (mode)
-			{
-				case UIUX_mode_boost:
-					vTaskDelayUntil(&tick, 100 / portTICK_PERIOD_MS);
-					UIUX_mode(UIUX_mode_general);
-					break;
-				case UIUX_mode_general:
 					break;
 			}
 		}

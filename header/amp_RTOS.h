@@ -61,7 +61,18 @@ enum _servo_mode
 enum _UIUX_mode
 {
 	UIUX_mode_boost		= 0xFF,
-	UIUX_mode_general		= 0x00,
+	UIUX_mode_general	= 0x00,
+	UIUX_mode_amp_switch,
+	UIUX_mode_volume_up,
+	UIUX_mode_volume_down,
+	UIUX_mode_save_cfg,
+	UIUX_mode_reset_cfg,
+	
+	UIUX_mode_servo_on_angle,
+	UIUX_mode_sub_servo_on_angle,
+
+	UIUX_mode_servo_off_angle,
+	UIUX_mode_sub_servo_off_angle
 };
 
 
