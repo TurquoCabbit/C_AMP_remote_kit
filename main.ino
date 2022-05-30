@@ -37,6 +37,15 @@ void setup() {
 		&servo_task_handle,  /* Task handle. */
 		core_1);
 
+	xTaskCreatePinnedToCore(
+		UIUX_task, /* Function to implement the task */
+		"UIUX_task", /* Name of the task */
+		UIUX_task_stack,  /* Stack size in words */
+		NULL,  /* Task input parameter */
+		UIUX_task_priority,  /* Priority of the task */
+		&UIUX_task_handle,  /* Task handle. */
+		core_1);
+
 	main_mode(main_mode_boost);	
 }
 
@@ -64,6 +73,8 @@ void main_task(void * parameter)
 					IrReceiver.begin(GPIO_IR_RX_PIN, DISABLE_LED_FEEDBACK, USE_DEFAULT_FEEDBACK_LED_PIN);
 
 					servo_mode(servo_mode_boost);
+					UIUX_mode(UIUX_mode_general);
+
 					main_mode(main_mode_general);
 					break;
 
@@ -158,6 +169,30 @@ void servo_task(void * parameter)
 
 				case servo_mode_amp_toggle:
 					servo_mode(amp_switch_now ? servo_mode_amp_off : servo_mode_amp_on);
+					break;
+			}
+		}
+	}
+}
+
+void UIUX_task(void * parameter)
+{
+	
+	uint8_t mode = 0xFF;
+
+	TickType_t tick = xTaskGetTickCount();
+
+	for (;;)
+	{
+		if (xQueueReceive(queue_UIUX, &mode, portMAX_DELAY) == pdTRUE)
+		{
+			switch (mode)
+			{
+				case UIUX_mode_boost:
+					vTaskDelayUntil(&tick, 100 / portTICK_PERIOD_MS);
+					UIUX_mode(UIUX_mode_general);
+					break;
+				case UIUX_mode_general:
 					break;
 			}
 		}
