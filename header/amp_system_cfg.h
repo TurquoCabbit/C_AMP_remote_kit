@@ -11,8 +11,15 @@
 #define EEPROM_config_offset			EEPROM_flag_offset + EEPROM_flag_length
 
 //SERVO
+#define SREVO_scale		10	// %	(20  ms)
+#define SERVO_offset	2.5 // %	(0.5 ms)
+
 #define SERVO_on_ang_init				0
 #define SERVO_off_ang_init				180
+
+//GEAR
+#define GEAR_MOTOR_ACT_TIME_ms	250
+#define GEAR_MOTOR_RELAY_ACT	LOW
 
 //IR 
 #define IR_debounce_cnt_init			1

@@ -46,20 +46,21 @@ static void Button_struct_init(_Button *pButton, uint8_t But)
 
 void amp_gpio_init(void)
 {
-	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
-	digitalWrite(GPIO_LCD_BKLGHT, 0); // Turn off LCD back light
-
 	pinMode(GPIO_RELAY_CLOCKWISE_PIN, OUTPUT);
-	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, 0);
+	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
 
 	pinMode(GPIO_RELAY_COUNTERCLOCKWISE_PIN, OUTPUT);
-	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, 0);
+	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+
+	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
+	digitalWrite(GPIO_LCD_BKLGHT, LOW); // Turn off LCD back light
+
 
 	pinMode(GPIO_IR_RX_PIN, INPUT);
 
 	ledcSetup(SERVO_MOTOR_channel, SERVO_MOTOR_freq, PWM_res_bit_num);
 	ledcAttachPin(GPIO_SERVO_MOTOR_PIN, SERVO_MOTOR_channel);
-	ledcWrite(SERVO_MOTOR_channel, 0);
+	ledcWrite(SERVO_MOTOR_channel, LOW);
 
 	pinMode(GPIO_BUTT_A_PIN, INPUT_PULLUP);
 	pinMode(GPIO_BUTT_B_PIN, INPUT_PULLUP);
@@ -143,8 +144,6 @@ bool Get_But_press(_Button *pButton)
 	return 0;
 }
 
-#define SREVO_scale		10	// %	(20  ms)
-#define SERVO_offset	2.5 // %	(0.5 ms)
 
 uint8_t amp_servo_set_angle(float ang)
 {
@@ -167,6 +166,19 @@ uint8_t amp_servo_stop(void)
 		return SERVO_OK;
 	else
 		return SERVO_ERROR;
+}
+
+void amp_gear_stop(void)
+{
+	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+}
+
+void amp_gear_set(uint8_t clockwise)
+{
+	amp_gear_stop();
+
+	digitalWrite(clockwise ? GPIO_RELAY_CLOCKWISE_PIN : GPIO_RELAY_COUNTERCLOCKWISE_PIN, GEAR_MOTOR_RELAY_ACT);
 }
 
 #endif // __AMP_GPIO_H__

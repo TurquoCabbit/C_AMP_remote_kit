@@ -1,11 +1,11 @@
 #include <IRremote.h>
 #include <EEPROM.h>
 
+#include "header/amp_system_cfg.h"
 #include "header/amp_log.h"
 #include "header/amp_gpio.h"
 #include "header/amp_RTOS.h"
 #include "header/smsl_IR_tbl.h"
-#include "header/amp_system_cfg.h"
 
 
 void setup() {
@@ -82,11 +82,11 @@ void main_task(void * parameter)
 					button_scan(&But_A);
 					button_scan(&But_B);
 
-					if (Get_But(&But_A, 10)) {
+					if (Get_But(&But_A, debouncing_times)) {
 						UIUX_mode(UIUX_mode_amp_on);	
 					}
 
-					if (Get_But(&But_B, 10)) {
+					if (Get_But(&But_B, debouncing_times)) {
 						UIUX_mode(UIUX_mode_amp_off);	
 					}
 
@@ -140,7 +140,6 @@ void UIUX_task(void * parameter)
 					
 				case UIUX_mode_general:
 					break;
-
 					
 				case UIUX_mode_amp_on:
 					amp_printf("Amp servo on\n");
@@ -163,10 +162,16 @@ void UIUX_task(void * parameter)
 					break;
 
 				case UIUX_mode_volume_up:
+					amp_gear_set(1);
+					vTaskDelayUntil(&tick, GEAR_MOTOR_ACT_TIME_ms / portTICK_PERIOD_MS);
+					amp_gear_stop();
 					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_volume_down:
+					amp_gear_set(0);
+					vTaskDelayUntil(&tick, GEAR_MOTOR_ACT_TIME_ms / portTICK_PERIOD_MS);
+					amp_gear_stop();
 					UIUX_mode(UIUX_mode_general);
 					break;
 
