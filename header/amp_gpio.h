@@ -5,10 +5,11 @@
 #define SERVO_ERROR		1
 
 //Pin define
-#define GPIO_SERVO_MOTOR_PIN		02
-#define GPIO_GEAR_MOTOR_PIN			15
-#define GPIO_IR_RX_PIN				13
-#define GPIO_LCD_BKLGHT				04
+#define GPIO_SERVO_MOTOR_PIN				02
+#define GPIO_RELAY_CLOCKWISE_PIN			15
+#define GPIO_RELAY_COUNTERCLOCKWISE_PIN		13
+#define GPIO_IR_RX_PIN						12
+#define GPIO_LCD_BKLGHT						04
 
 #define PWM_res_bit_num				16
 
@@ -48,8 +49,11 @@ void amp_gpio_init(void)
 	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
 	digitalWrite(GPIO_LCD_BKLGHT, 0); // Turn off LCD back light
 
-	pinMode(GPIO_GEAR_MOTOR_PIN, OUTPUT);
-	digitalWrite(GPIO_GEAR_MOTOR_PIN, 0);
+	pinMode(GPIO_RELAY_CLOCKWISE_PIN, OUTPUT);
+	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, 0);
+
+	pinMode(GPIO_RELAY_COUNTERCLOCKWISE_PIN, OUTPUT);
+	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, 0);
 
 	pinMode(GPIO_IR_RX_PIN, INPUT);
 
