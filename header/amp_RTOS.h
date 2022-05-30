@@ -62,6 +62,8 @@ enum _UIUX_mode
 {
 	UIUX_mode_boost		= 0xFF,
 	UIUX_mode_general	= 0x00,
+	UIUX_mode_amp_on,
+	UIUX_mode_amp_off,
 	UIUX_mode_amp_switch,
 	UIUX_mode_volume_up,
 	UIUX_mode_volume_down,

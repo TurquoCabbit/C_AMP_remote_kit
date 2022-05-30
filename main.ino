@@ -83,13 +83,11 @@ void main_task(void * parameter)
 					button_scan(&But_B);
 
 					if (Get_But(&But_A, 10)) {
-						amp_printf("Butt_A\n");
-						servo_mode(servo_mode_amp_on);	
+						UIUX_mode(UIUX_mode_amp_on);	
 					}
 
 					if (Get_But(&But_B, 10)) {
-						amp_printf("Butt_B\n");
-						servo_mode(servo_mode_amp_off);	
+						UIUX_mode(UIUX_mode_amp_off);	
 					}
 
 					if (IrReceiver.decode()) {
@@ -141,6 +139,20 @@ void UIUX_task(void * parameter)
 					break;
 					
 				case UIUX_mode_general:
+					break;
+
+					
+				case UIUX_mode_amp_on:
+					amp_printf("Amp servo on\n");
+					
+					servo_mode(servo_mode_amp_on);
+					UIUX_mode(UIUX_mode_general);
+					break;
+				case UIUX_mode_amp_off:
+					amp_printf("Amp servo off\n");
+				
+					servo_mode(servo_mode_amp_off);
+					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_amp_switch:
