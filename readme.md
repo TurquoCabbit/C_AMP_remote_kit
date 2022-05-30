@@ -3,7 +3,12 @@
 ## **Remotr function**
 
 ### A mode
-* Not use for now
+* Source : Enter/Leave amp servo angle modify resolution config mode
+    * Up : Resolution decrease
+    * Down : Resolution increase
+* Function : Enter/Leave amp volume gear motor relay active level config mode
+    * Up : HIGH active
+    * Down : LOW active
 
 ### B mode
 * Enter : Save current config
@@ -14,6 +19,13 @@
 * Function : Enter/Leave amp **OFF** servo angle config mode
     * Up : Angle increase
     * Down : Angle decrease
+* Power : Enter/Leave amp volume gear motor rolling direction config mode
+    * Up : Clockwise as volume up
+    * Down : Clockwise as volume down
+* Left : Enter/Leave amp volume gear motor rolling time config mode
+    * Up : Rolling time increase
+    * Down : Rolling time decrease
+
 
 
 ### **C mode** (General usage)
@@ -29,5 +41,5 @@
 |:---:|:---|:---|
 |02|Servo motor singal|||
 |12|IR receive signal|||
-|~~15~~|~~gear motor clockwise~~|~~relay 0, 3~~||
-|~~13~~|~~gear motor counterclockwise~~|~~relay 1, 2~~||
+|15|gear motor clockwise|relay 0, 3||
+|13|gear motor counterclockwise|relay 1, 2||

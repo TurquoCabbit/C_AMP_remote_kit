@@ -43,22 +43,22 @@ inline void queue_init(void)
 	}
 }
 
-enum _main_mode
+typedef enum 
 {
 	main_mode_boost			= 0xFF,
 	main_mode_general		= 0x00,
-};
+}_main_mode;
 
-enum _servo_mode
+typedef enum 
 {
 	servo_mode_boost		= 0xFF,
 	servo_mode_general		= 0x00,
 	servo_mode_amp_on,
 	servo_mode_amp_off,
 	servo_mode_amp_toggle,
-};
+}_servo_mode;
 
-enum _UIUX_mode
+typedef enum 
 {
 	UIUX_mode_boost		= 0xFF,
 	UIUX_mode_general	= 0x00,
@@ -72,13 +72,14 @@ enum _UIUX_mode
 	
 	UIUX_mode_servo_on_angle,
 	UIUX_mode_servo_off_angle,
-	UIUX_mode_angle_res,
+	UIUX_mode_servo_angle_res,
 	UIUX_mode_gear_act_level,
 	UIUX_mode_gear_roll_time,
+	UIUX_mode_gear_roll_dir,
 
 	UIUX_mode_sub_config_inc,
 	UIUX_mode_sub_config_dec
-};
+}_UIUX_mode;
 
 
 #endif // __AMP_RTOS_H__
