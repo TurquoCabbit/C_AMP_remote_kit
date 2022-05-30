@@ -16,6 +16,7 @@
 
 #define SERVO_on_ang_init				0
 #define SERVO_off_ang_init				180
+#define SERVO_angle_resol_init				5	//degree
 
 //GEAR
 #define GEAR_MOTOR_ACT_TIME_ms	250
@@ -27,14 +28,22 @@
 typedef struct _system_config
 {
 	// power switch config
-	float servo_off_ang;
 	float servo_on_ang;
+	float servo_off_ang;
+	float servo_ang_setting_resol;
+
+	uint8_t gear_active_level;
+	int16_t gear_roll_time_ms;
 };
 
 static _system_config amp_cfg =
 {
-	.servo_off_ang			= SERVO_off_ang_init,
-	.servo_on_ang			= SERVO_on_ang_init
+	.servo_on_ang				= SERVO_on_ang_init,
+	.servo_off_ang				= SERVO_off_ang_init,
+	.servo_ang_setting_resol	= SERVO_angle_resol_init,
+
+	.gear_active_level			= GEAR_MOTOR_RELAY_ACT,
+	.gear_roll_time_ms			= GEAR_MOTOR_ACT_TIME_ms;
 };
 
 inline void amp_save_config(_system_config * pdata)

@@ -93,17 +93,67 @@ void main_task(void * parameter)
 					if (IrReceiver.decode()) {
 						smsl_ir = &IrReceiver.decodedIRData;
 						
-						if (smsl_remote_check(smsl_ir, &smsl_butt.PWR, smsl_IR_addr_C, smsl_IR_butt_PWR)) {
+						// mode C
+						if (smsl_remote_check(smsl_ir, &smsl_butt.PWR, smsl_IR_addr_C, smsl_IR_butt_PWR))
+						{
+							amp_printf("mode C, PWR\n");
 							smsl_butt.PWR = IR_debounce_cnt_init;
 							UIUX_mode(UIUX_mode_amp_switch);
 						}
 
-						if (smsl_remote_check(smsl_ir, &smsl_butt.MUTE, smsl_IR_addr_B, smsl_IR_butt_MUTE)) {
+						if (smsl_remote_check(smsl_ir, &smsl_butt.UP, smsl_IR_addr_C, smsl_IR_butt_UP))
+						{
+							amp_printf("mode C, UP\n");
+							smsl_butt.UP = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_volume_up);
+						}
+
+						if (smsl_remote_check(smsl_ir, &smsl_butt.DOWN, smsl_IR_addr_C, smsl_IR_butt_UP))
+						{
+							amp_printf("mode C, DOWN\n");
+							smsl_butt.DOWN = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_volume_down);
+						}
+						
+						// mode B
+						if (smsl_remote_check(smsl_ir, &smsl_butt.SRC, smsl_IR_addr_B, smsl_IR_butt_SRC))
+						{
+							amp_printf("mode B, SRC\n");
+							smsl_butt.SRC = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_servo_on_angle);
+						}
+
+						if (smsl_remote_check(smsl_ir, &smsl_butt.FN, smsl_IR_addr_B, smsl_IR_butt_FN))
+						{
+							amp_printf("mode B, FN\n");
+							smsl_butt.FN = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_servo_off_angle);
+						}
+
+						if (smsl_remote_check(smsl_ir, &smsl_butt.UP, smsl_IR_addr_B, smsl_IR_butt_UP))
+						{
+							amp_printf("mode B, UP\n");
+							smsl_butt.UP = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_sub_config_inc);
+						}
+
+						if (smsl_remote_check(smsl_ir, &smsl_butt.DOWN, smsl_IR_addr_B, smsl_IR_butt_DOWN))
+						{
+							amp_printf("mode B, DOWN\n");
+							smsl_butt.DOWN = IR_debounce_cnt_init;
+							UIUX_mode(UIUX_mode_sub_config_dec);
+						}
+
+						if (smsl_remote_check(smsl_ir, &smsl_butt.MUTE, smsl_IR_addr_B, smsl_IR_butt_MUTE))
+						{
+							amp_printf("mode B, MUTE\n");
 							smsl_butt.MUTE = IR_debounce_cnt_init;
 							UIUX_mode(UIUX_mode_reset_cfg);
 						}
 
-						if (smsl_remote_check(smsl_ir, &smsl_butt.ENTER, smsl_IR_addr_B, smsl_IR_butt_ENTER)) {
+						if (smsl_remote_check(smsl_ir, &smsl_butt.ENTER, smsl_IR_addr_B, smsl_IR_butt_ENTER))
+						{
+							amp_printf("mode B, ENTER\n");
 							smsl_butt.ENTER = IR_debounce_cnt_init;
 							UIUX_mode(UIUX_mode_save_cfg);
 						}
@@ -125,6 +175,8 @@ void UIUX_task(void * parameter)
 	
 	uint8_t mode = 0xFF;
 
+	_UIUX_config_setting_mode config_setting_mode = 0;
+
 	TickType_t tick = xTaskGetTickCount();
 
 	for (;;)
@@ -134,11 +186,13 @@ void UIUX_task(void * parameter)
 			switch (mode)
 			{
 				case UIUX_mode_boost:
+					amp_gear_stop();
 					vTaskDelayUntil(&tick, 100 / portTICK_PERIOD_MS);
 					UIUX_mode(UIUX_mode_general);
 					break;
 					
 				case UIUX_mode_general:
+					amp_gear_stop();
 					break;
 					
 				case UIUX_mode_amp_on:
@@ -155,53 +209,211 @@ void UIUX_task(void * parameter)
 					break;
 
 				case UIUX_mode_amp_switch:
-					amp_printf("mode C, PWR : amp power switch\n");
+					amp_printf("Amp power switch\n");
 					
 					servo_mode(servo_mode_amp_toggle);
 					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_volume_up:
+					amp_printf("Volume up\n");
 					amp_gear_set(1);
-					vTaskDelayUntil(&tick, GEAR_MOTOR_ACT_TIME_ms / portTICK_PERIOD_MS);
+					vTaskDelayUntil(&tick, amp_cfg.gear_roll_time_ms / portTICK_PERIOD_MS);
 					amp_gear_stop();
 					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_volume_down:
+					amp_printf("Volume down\n");
 					amp_gear_set(0);
-					vTaskDelayUntil(&tick, GEAR_MOTOR_ACT_TIME_ms / portTICK_PERIOD_MS);
+					vTaskDelayUntil(&tick, amp_cfg.gear_roll_time_ms / portTICK_PERIOD_MS);
 					amp_gear_stop();
 					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_save_cfg:
-					amp_printf("mode B, ENTER : SAVE config\n");
+					amp_printf("SAVE config\n");
 
 					amp_save_config(&amp_cfg);
-					UIUX_mode(UIUX_mode_general);
+					vTaskDelayUntil(&tick, 10 / portTICK_PERIOD_MS);
+					ESP.restart();
 					break;
 
 				case UIUX_mode_reset_cfg:
-					amp_printf("mode B, MUTE : reset to default\n");
+					amp_printf("Reset to default\n");
 
 					amp_clear_config();
+					vTaskDelayUntil(&tick, 10 / portTICK_PERIOD_MS);
 					ESP.restart();
 					break;
 				
 				case UIUX_mode_servo_on_angle:
-					UIUX_mode(UIUX_mode_general);
-					break;
-
-				case UIUX_mode_sub_servo_on_angle:
+					if (!config_setting_mode)
+					{
+						config_setting_mode = UIUX_mode_servo_on_angle;
+						amp_printf("Enter servo ON angle setting mode\n");
+					}
+					else if (config_setting_mode == UIUX_mode_servo_on_angle)
+					{
+						config_setting_mode = 0;
+						amp_printf("Leave servo ON angle setting mode\n");
+					}
+					else
+					{
+						amp_printf("Already in other setting mode\n");
+					}
 					UIUX_mode(UIUX_mode_general);
 					break;
 
 				case UIUX_mode_servo_off_angle:
+					if (!config_setting_mode)
+					{
+						config_setting_mode = UIUX_mode_servo_off_angle;
+						amp_printf("Enter servo OFF angle setting mode\n");
+					}
+					else if (config_setting_mode == UIUX_mode_servo_off_angle)
+					{
+						config_setting_mode = 0;
+						amp_printf("Leave servo OFF angle setting mode\n");
+					}
+					else
+					{
+						amp_printf("Already in other setting mode\n");
+					}
 					UIUX_mode(UIUX_mode_general);
 					break;
 
-				case UIUX_mode_sub_servo_off_angle:
+				case UIUX_mode_angle_res:
+					if (!config_setting_mode)
+					{
+						config_setting_mode = UIUX_mode_angle_res_angle_res;
+						amp_printf("Enter angle resolution setting mode\n");
+					}
+					else if (config_setting_mode == UIUX_mode_angle_res_angle_res)
+					{
+						config_setting_mode = 0;
+						amp_printf("Leave angle resolution setting mode\n");
+					}
+					else
+					{
+						amp_printf("Already in other setting mode\n");
+					}
+					UIUX_mode(UIUX_mode_general);
+					break;
+				
+				case UIUX_mode_gear_act_level:
+					if (!config_setting_mode)
+					{
+						config_setting_mode = UIUX_mode_gear_act_level;
+						amp_printf("Enter gear motor relay active level setting mode\n");
+					}
+					else if (config_setting_mode == UIUX_mode_gear_act_level)
+					{
+						config_setting_mode = 0;
+						amp_printf("Leave gear motor relay active level setting mode\n");
+					}
+					else
+					{
+						amp_printf("Already in other setting mode\n");
+					}
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+					
+				case UIUX_mode_gear_roll_time:
+					if (!config_setting_mode)
+					{
+						config_setting_mode = UIUX_mode_gear_roll_time;
+						amp_printf("Enter gear motor rolling time setting mode\n");
+					}
+					else if (config_setting_mode == UIUX_mode_gear_roll_time)
+					{
+						config_setting_mode = 0;
+						amp_printf("Leave gear motor rolling time setting mode\n");
+					}
+					else
+					{
+						amp_printf("Already in other setting mode\n");
+					}
+					UIUX_mode(UIUX_mode_general);
+
+				case UIUX_mode_sub_config_inc:
+					switch (config_setting_mode)
+					{
+						case UIUX_mode_servo_on_angle:
+							amp_cfg.servo_on_ang += amp_cfg.SERVO_angle_resol_init;
+							if (amp_cfg.servo_on_ang > 180)
+								amp_cfg.servo_on_ang = 180
+							
+							servo_mode(servo_mode_amp_on);
+							break;
+						case UIUX_mode_servo_off_angle:
+							amp_cfg.servo_off_ang += amp_cfg.SERVO_angle_resol_init;
+							if (amp_cfg.servo_off_ang > 180)
+								amp_cfg.servo_off_ang = 180
+							
+							servo_mode(servo_mode_amp_off);
+							break;
+						
+						case UIUX_mode_angle_res_angle_res:
+							amp_cfg.SERVO_angle_resol_init += 0.1;
+							if (amp_cfg.SERVO_angle_resol_init > 10)
+								amp_cfg.SERVO_angle_resol_init = 10;
+							amp_print("Servo angle resolution: %f", amp_cfg.SERVO_angle_resol_init);
+							break;
+						
+						case UIUX_mode_gear_act_level:
+							amp_cfg.gear_active_level = 1;
+							amp_print("Gear relay active level: %s", amp_cfg.gear_active_level ? "HIGH" : "LOW");
+							break;
+
+						case UIUX_mode_gear_roll_time:
+							amp_cfg.gear_roll_time_ms += 10;
+							if (amp_cfg.gear_roll_time_ms > 5000)
+								amp_cfg.gear_roll_time_ms = 5000;
+							amp_print("Gear motor roll time: %d ms", amp_cfg.gear_roll_time_ms);
+							break;
+					}
+					UIUX_mode(UIUX_mode_general);
+					break;
+
+				case UIUX_mode_sub_config_dec:
+					switch (config_setting_mode)
+					{
+						case UIUX_mode_servo_on_angle:
+							amp_cfg.servo_on_ang -= amp_cfg.SERVO_angle_resol_init;
+							if (amp_cfg.servo_on_ang < 0)
+								amp_cfg.servo_on_ang = 0
+							
+							servo_mode(servo_mode_amp_on);
+							break;
+						case UIUX_mode_servo_off_angle:
+							amp_cfg.servo_off_ang -= amp_cfg.SERVO_angle_resol_init;
+							if (amp_cfg.servo_off_ang < 0)
+								amp_cfg.servo_off_ang = 0
+							
+							servo_mode(servo_mode_amp_off);
+							break;
+
+						case UIUX_mode_angle_res_angle_res:
+							amp_cfg.SERVO_angle_resol_init -= 0.1;
+							if (amp_cfg.SERVO_angle_resol_init < 0)
+								amp_cfg.SERVO_angle_resol_init = 0;
+							amp_print("Servo angle resolution: %f", amp_cfg.SERVO_angle_resol_init);
+							break;
+													
+						case UIUX_mode_gear_act_level:
+							amp_cfg.gear_active_level = 0;
+							amp_print("Gear relay active level: %s", amp_cfg.gear_active_level ? "HIGH" : "LOW");
+							break;
+
+						case UIUX_mode_gear_roll_time:
+							amp_cfg.gear_roll_time_ms -= 10;
+							if (amp_cfg.gear_roll_time_ms < 0)
+								amp_cfg.gear_roll_time_ms = 0;
+							amp_print("Gear motor roll time: %d ms", amp_cfg.gear_roll_time_ms);
+							break;
+					}
 					UIUX_mode(UIUX_mode_general);
 					break;
 			}

@@ -71,10 +71,13 @@ enum _UIUX_mode
 	UIUX_mode_reset_cfg,
 	
 	UIUX_mode_servo_on_angle,
-	UIUX_mode_sub_servo_on_angle,
-
 	UIUX_mode_servo_off_angle,
-	UIUX_mode_sub_servo_off_angle
+	UIUX_mode_angle_res,
+	UIUX_mode_gear_act_level,
+	UIUX_mode_gear_roll_time,
+
+	UIUX_mode_sub_config_inc,
+	UIUX_mode_sub_config_dec
 };
 
 

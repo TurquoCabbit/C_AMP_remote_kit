@@ -47,10 +47,10 @@ static void Button_struct_init(_Button *pButton, uint8_t But)
 void amp_gpio_init(void)
 {
 	pinMode(GPIO_RELAY_CLOCKWISE_PIN, OUTPUT);
-	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !amp_cfg.gear_active_level);
 
 	pinMode(GPIO_RELAY_COUNTERCLOCKWISE_PIN, OUTPUT);
-	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !amp_cfg.gear_active_level);
 
 	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
 	digitalWrite(GPIO_LCD_BKLGHT, LOW); // Turn off LCD back light
@@ -170,15 +170,15 @@ uint8_t amp_servo_stop(void)
 
 void amp_gear_stop(void)
 {
-	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
-	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !GEAR_MOTOR_RELAY_ACT);
+	digitalWrite(GPIO_RELAY_CLOCKWISE_PIN, !amp_cfg.gear_active_level);
+	digitalWrite(GPIO_RELAY_COUNTERCLOCKWISE_PIN, !amp_cfg.gear_active_level);
 }
 
 void amp_gear_set(uint8_t clockwise)
 {
 	amp_gear_stop();
 
-	digitalWrite(clockwise ? GPIO_RELAY_CLOCKWISE_PIN : GPIO_RELAY_COUNTERCLOCKWISE_PIN, GEAR_MOTOR_RELAY_ACT);
+	digitalWrite(clockwise ? GPIO_RELAY_CLOCKWISE_PIN : GPIO_RELAY_COUNTERCLOCKWISE_PIN, amp_cfg.gear_active_level);
 }
 
 #endif // __AMP_GPIO_H__
