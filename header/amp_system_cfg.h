@@ -14,8 +14,8 @@
 #define SREVO_scale						10	// %	(20  ms)
 #define SERVO_offset					2.5 // %	(0.5 ms)
 
-#define SERVO_on_ang_init				0
-#define SERVO_off_ang_init				180
+#define SERVO_on_ang_init				30
+#define SERVO_off_ang_init				150
 #define SERVO_angle_resol_init			5	//degree
 
 //GEAR
