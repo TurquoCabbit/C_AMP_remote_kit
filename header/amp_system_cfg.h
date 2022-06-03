@@ -16,7 +16,7 @@
 
 #define SERVO_on_ang_init				30
 #define SERVO_off_ang_init				150
-#define SERVO_angle_resol_init			5	//degree
+#define SERVO_angle_resol_init			1	//degree
 
 //GEAR
 #define GEAR_MOTOR_ACT_TIME_ms			250
