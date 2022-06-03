@@ -9,9 +9,11 @@
 
 
 void setup() {
-	
+	char * Version = "1.00";
+	char * Date = "2022/06/03";
+
 	Serial.begin(115200);
-	amp_printf("======program start======\n");
+	amp_printf("%s\t\t%s\n\n", Version, Date);
 
 	amp_gpio_init();
 
