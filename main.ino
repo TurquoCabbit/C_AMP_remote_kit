@@ -13,7 +13,7 @@ void setup() {
 	char * Date = "2022/06/03";
 
 	Serial.begin(115200);
-	amp_printf("%s\t\t%s\n\n", Version, Date);
+	amp_printf("\nVer:%s\t%s\n\n", Version, Date);
 
 	amp_gpio_init();
 
