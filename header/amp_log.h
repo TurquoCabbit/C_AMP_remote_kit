@@ -1,7 +1,7 @@
 #ifndef __AMP_LOG_H_
 #define __AMP_LOG_H_
 
-#include <stdarg.h>0
+#include <stdarg.h>
 
 //LOG
 #define log_max_lenght	255
