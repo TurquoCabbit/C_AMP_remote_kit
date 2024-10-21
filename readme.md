@@ -43,3 +43,7 @@
 |12|IR receive signal|||
 |15|gear motor clockwise|relay 0, 3||
 |13|gear motor counterclockwise|relay 1, 2||
+
+
+## **Arduino ESP32 version**
+2.0.0

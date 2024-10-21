@@ -9,8 +9,9 @@
 
 
 void setup() {
-	char * Version = "1.00";
-	char * Date = "2022/06/03";
+	char * Version = "1.10";
+	char * Date = "2024/10/21";
+	// esp_reset_reason_t reset_reason = esp_reset_reason();
 
 	Serial.begin(115200);
 	amp_printf("\nVer:%s\t%s\n\n", Version, Date);
@@ -20,6 +21,9 @@ void setup() {
 	queue_init();
 
 	amp_system_cfg_init();
+	
+	// Serial.print("Reset reason: ");
+  	// Serial.println(reset_reason);
 
 	xTaskCreatePinnedToCore(
 		main_task, /* Function to implement the task */
@@ -60,10 +64,13 @@ void main_task(void * parameter)
 {
 	_main_mode mode;
 	IRData *smsl_ir;
+	uint32_t light_sleep_cnt;
 
 	_smsl_butt_cnt smsl_butt = {IR_debounce_cnt_init};
 
 	TickType_t tick = xTaskGetTickCount();
+
+	light_sleep_cnt = 0;
 
 	for (;;)
 	{
@@ -85,14 +92,17 @@ void main_task(void * parameter)
 					button_scan(&But_B);
 
 					if (Get_But(&But_A, debouncing_times)) {
+						light_sleep_cnt = 0;
 						UIUX_mode(UIUX_mode_amp_on);	
 					}
 
 					if (Get_But(&But_B, debouncing_times)) {
+						light_sleep_cnt = 0;
 						UIUX_mode(UIUX_mode_amp_off);	
 					}
 
 					if (IrReceiver.decode()) {
+						light_sleep_cnt = 0;
 						smsl_ir = &IrReceiver.decodedIRData;
 						
 						// mode C
@@ -189,12 +199,19 @@ void main_task(void * parameter)
 							UIUX_mode(UIUX_mode_gear_act_level);
 						}
 
-
 						IrReceiver.resume(); // Enable receiving of the next value
 					}
 
+					light_sleep_cnt++;
+					if (light_sleep_cnt > 10000) {
+						light_sleep_cnt = 0;
+						amp_printf("Enter light sleep mode, wake up when any IR signal received\n");
+						esp_light_sleep_start();
+						amp_printf("Wake up from light sleep mode\n");
+					}
+
 					vTaskDelayUntil(&tick, 1 / portTICK_PERIOD_MS);
-					main_mode(main_mode_general);				
+					main_mode(main_mode_general);
 					break;
 			}
 		}
