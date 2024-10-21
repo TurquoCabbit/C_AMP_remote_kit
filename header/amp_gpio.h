@@ -11,6 +11,8 @@
 #define GPIO_IR_RX_PIN						12
 #define GPIO_LCD_BKLGHT						04
 
+#define WAKEUP_PIN 							GPIO_NUM_12  // Define with gpio_num_t type
+
 #define PWM_res_bit_num				16
 
 #define SERVO_MOTOR_channel			0
@@ -55,8 +57,9 @@ void amp_gpio_init(void)
 	pinMode(GPIO_LCD_BKLGHT, OUTPUT);
 	digitalWrite(GPIO_LCD_BKLGHT, LOW); // Turn off LCD back light
 
-
 	pinMode(GPIO_IR_RX_PIN, INPUT);
+
+	esp_sleep_enable_ext0_wakeup(WAKEUP_PIN, 0);  // Wake up when GPIO goes LOW
 
 	ledcSetup(SERVO_MOTOR_channel, SERVO_MOTOR_freq, PWM_res_bit_num);
 	ledcAttachPin(GPIO_SERVO_MOTOR_PIN, SERVO_MOTOR_channel);
