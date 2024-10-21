@@ -30,8 +30,8 @@
 
 ### **C mode** (General usage)
 * **Power** : Power on DAC(su-9) and AMP (Servo moter on/off)
-* ~~**Up** : volum up (Geat motor clockwise)~~
-* ~~**Down** : volum down (Geat motor counterclockwise)~~
+* ~~**Up** : volum up (Gear motor clockwise)~~
+* ~~**Down** : volum down (Gear motor counterclockwise)~~
 
 ---
 
