@@ -1,6 +1,6 @@
 # SMSL Remote for extern amp control kit
 
-## **Remotr function**
+## **Remote function**
 
 ### A mode
 * Source : Enter/Leave amp servo angle modify resolution config mode
